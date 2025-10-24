@@ -2,7 +2,7 @@
 
 from pyrogram import Client
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_stream import AudioPiped
+from pytgcalls.types import AudioPiped
 import asyncio
 import os
 import ffmpeg
