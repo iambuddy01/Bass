@@ -68,6 +68,6 @@
 
 ```bash
 /bass    # Start bass mode
-/bstop   # Stop the playback
+/bstop   # Stop the playback ```
 
-<p align="center"> <b>Made with 💜 by ITsExclusive69</b><br> <i>Feel the bass. Disturb the peace.</i> </p> ```
+<p align="center"> <b>Made with 💜 by ITsExclusive69</b><br> <i>Feel the bass. Disturb the peace.</i> </p>
