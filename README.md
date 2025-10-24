@@ -33,16 +33,6 @@
 
 ---
 
-## ⚡ Deploy Instantly to Heroku
-
-<p align="center">
-  <a href="https://heroku.com/deploy?template=https://github.com/iambuddy01/Bass">
-    <img src="https://img.shields.io/badge/Deploy%20To%20Heroku-79589F?style=for-the-badge&logo=heroku&logoColor=white" alt="Deploy to Heroku">
-  </a>
-</p>
-
----
-
 ## 🛠️ Requirements
 
 - Python 3.10 or higher  
