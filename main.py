@@ -14,6 +14,19 @@ bot = Client(
 user_sessions = {}  # user_id -> {"file": ..., "chat_id": ...}
 
 # ==============================
+# /start command
+# ==============================
+@bot.on_message(filters.command("start") & filters.private)
+async def start_cmd(client, message):
+    await message.reply(
+        "🎵 **Bass Bot is Alive!**\n\n"
+        "Commands available:\n"
+        "• `/bass` - Send audio/voice to play in a group VC\n"
+        "• `/bstop` - Stop the currently playing audio\n\n"
+        "Send `/bass` to get started!"
+    )
+
+# ==============================
 # /bass command
 # ==============================
 @bot.on_message(filters.command("bass") & filters.private)
