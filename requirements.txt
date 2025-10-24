@@ -1,16 +1,7 @@
-# Telegram client
 pyrogram==2.0.106
 TgCrypto
-
-# Voice call library (stable version compatible with AudioPiped)
 pytgcalls==2.1.0
-
-# Database
 motor==3.4.0
-
-# Media & audio handling
 ffmpeg-python==0.2.0
 aiohttp==3.13.1
-
-# Heroku API
 heroku3==5.2.1
