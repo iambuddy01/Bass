@@ -2,7 +2,7 @@ import asyncio
 import os
 import ffmpeg
 from pyrogram import Client, filters
-from py_tgcalls import PyTgCalls, idle, AudioPiped
+from py_tgcalls import PyTgCalls, idle, AudioPiped  # works if installed as py-tgcalls
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
 
 # -----------------------------
