@@ -1,14 +1,15 @@
 import asyncio
 import os
-import ffmpeg
 from pyrogram import Client, filters
-from py_tgcalls import PyTgCalls, idle, AudioPiped
 from pyrogram.types import Message
+from pydub import AudioSegment
+from py_tgcalls import PyTgCalls, idle, AudioPiped
+
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
 
-# ----------------------------
-# Telegram Bot
-# ----------------------------
+# ==============================
+# 🔹 Bot & Assistant Client
+# ==============================
 bot = Client(
     "BassBot",
     api_id=API_ID,
@@ -16,9 +17,6 @@ bot = Client(
     bot_token=BOT_TOKEN
 )
 
-# ----------------------------
-# Assistant Client (userbot)
-# ----------------------------
 assistant = Client(
     name="assistant",
     api_id=API_ID,
@@ -29,58 +27,40 @@ assistant = Client(
 pytgcalls = PyTgCalls(assistant)
 active_sessions = {}  # chat_id -> file_path
 
-# ----------------------------
-# Bass Boost Function
-# ----------------------------
-def apply_bass_boost(input_file: str) -> str:
-    boosted_file = f"boosted_{os.path.basename(input_file)}"
-    try:
-        (
-            ffmpeg
-            .input(input_file)
-            .output(
-                boosted_file,
-                af='bass=g=25:f=80,volume=10dB',
-                format='wav',
-                acodec='pcm_s16le',
-                ac=2,
-                ar='44100'
-            )
-            .overwrite_output()
-            .run(quiet=True)
-        )
-        return boosted_file
-    except Exception as e:
-        print(f"[BassFilterError] {e}")
-        return input_file
+# ==============================
+# 🔊 Bass Boost Function
+# ==============================
+def apply_bass_boost(audio_path: str) -> str:
+    audio = AudioSegment.from_file(audio_path)
+    # Extreme bass: low pass + high pass + huge gain
+    boosted = audio.low_pass_filter(250).high_pass_filter(100).apply_gain(40)
+    boosted_path = "boosted_audio.mp3"  # always overwrite
+    boosted.export(boosted_path, format="mp3")
+    return boosted_path
 
-# ----------------------------
-# Play Audio in VC
-# ----------------------------
+# ==============================
+# 🎧 Play in VC
+# ==============================
 async def play_bass(file_path: str, chat_id: int):
+    boosted_file = apply_bass_boost(file_path)
+    active_sessions[chat_id] = boosted_file
+
     try:
         await assistant.join_chat(chat_id)
     except:
         pass
 
-    boosted_file = apply_bass_boost(file_path)
-    active_sessions[chat_id] = boosted_file
-
     try:
-        await pytgcalls.join_group_call(
-            chat_id,
-            AudioPiped(boosted_file)
-        )
+        await pytgcalls.join_group_call(chat_id, AudioPiped(boosted_file))
     except Exception as e:
         print(f"[BassError] {e}")
 
 @pytgcalls.on_stream_end()
-async def restart_stream(_, update):
+async def loop_audio(_, update):
     chat_id = update.chat_id
     if chat_id in active_sessions:
-        file = active_sessions[chat_id]
-        await asyncio.sleep(2)
-        await play_bass(file, chat_id)
+        await asyncio.sleep(1)
+        await play_bass(active_sessions[chat_id], chat_id)
 
 async def stop_bass(chat_id: int):
     try:
@@ -88,64 +68,62 @@ async def stop_bass(chat_id: int):
     except:
         pass
     if chat_id in active_sessions:
-        file = active_sessions.pop(chat_id)
         try:
-            os.remove(file)
+            os.remove(active_sessions.pop(chat_id))
         except:
             pass
 
-# ----------------------------
-# /start and alive message
-# ----------------------------
+# ==============================
+# 💬 Bot Commands
+# ==============================
 @bot.on_message(filters.command("start"))
-async def start_cmd(client: Client, message: Message):
-    await message.reply_text("🎵 BassBot is alive! Send /bass to start a looped extreme bass track.")
+async def start_cmd(client, message: Message):
+    await message.reply_text(
+        "🎵 **Bass Bot is alive!**\n"
+        "Use /bass to send an audio file or voice message to play with extreme bass."
+    )
 
-# ----------------------------
-# /bass command
-# ----------------------------
-user_uploads = {}  # user_id -> file_path
+user_audio_files = {}  # user_id -> audio_path
 
-@bot.on_message(filters.command("bass") & filters.private)
-async def bass_cmd(client: Client, message: Message):
-    await message.reply_text("Send me the audio file or voice message you want to play in VC.")
-
-@bot.on_message(filters.voice | filters.audio)
-async def save_audio(client: Client, message: Message):
-    file_path = await message.download()
-    user_uploads[message.from_user.id] = file_path
-    await message.reply_text("Audio received! Now send me the target Telegram Group ID.")
-
-@bot.on_message(filters.text & filters.private)
-async def receive_group_id(client: Client, message: Message):
-    if message.from_user.id not in user_uploads:
-        return
+@bot.on_message(filters.command("bass") & filters.reply)
+async def bass_cmd(client, message: Message):
     try:
-        chat_id = int(message.text)
-    except ValueError:
-        await message.reply_text("❌ Invalid ID. Send a numeric Telegram group ID.")
-        return
-    file_path = user_uploads.pop(message.from_user.id)
-    await play_bass(file_path, chat_id)
-    await message.reply_text(f"✅ Started playing in group `{chat_id}` with extreme bass.")
+        if message.reply_to_message.audio or message.reply_to_message.voice:
+            file_path = await client.download_media(message.reply_to_message)
+            user_audio_files[message.from_user.id] = file_path
+            await message.reply_text("✅ Audio received! Now send the target **group ID** where I should play it.")
+        else:
+            await message.reply_text("🚫 Reply to an audio or voice message with /bass.")
+    except Exception as e:
+        await message.reply_text(f"🚫 Error: {e}")
 
-# ----------------------------
-# /bstop command
-# ----------------------------
-@bot.on_message(filters.command("bstop") & filters.private)
-async def stop_cmd(client: Client, message: Message):
-    await stop_bass(int(message.text))
-    await message.reply_text("⏹ Playback stopped.")
+@bot.on_message(filters.text)
+async def receive_group_id(client, message: Message):
+    user_id = message.from_user.id
+    if user_id in user_audio_files:
+        try:
+            chat_id = int(message.text.strip())
+            file_path = user_audio_files[user_id]
+            await play_bass(file_path, chat_id)
+            await message.reply_text(f"🎧 Playing audio with extreme bass in VC: `{chat_id}`")
+            del user_audio_files[user_id]
+        except Exception as e:
+            await message.reply_text(f"🚫 Failed: {e}")
 
-# ----------------------------
-# Run everything
-# ----------------------------
-async def main():
+@bot.on_message(filters.command("bstop"))
+async def stop_cmd(client, message: Message):
+    await stop_bass(int(message.text.split(" ")[1]) if len(message.text.split()) > 1 else 0)
+    await message.reply_text("⏹️ Playback stopped.")
+
+# ==============================
+# 🔹 Run Assistant + Bot
+# ==============================
+async def run():
     await bot.start()
     await assistant.start()
     await pytgcalls.start()
-    print("[BassBot] Running with extreme bass 🔊")
+    print("[BassBot] Running with Extreme Bass 🔊")
     await idle()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run())
