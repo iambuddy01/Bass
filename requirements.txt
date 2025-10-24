@@ -1,0 +1,7 @@
+pyrogram==2.0.106
+TgCrypto
+pytgcalls==3.0.0.dev23
+motor==3.4.0
+ffmpeg-python
+aiohttp
+heroku3
