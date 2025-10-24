@@ -1,6 +1,6 @@
 pyrogram==2.0.106
 TgCrypto
-pytgcalls==3.0.0.dev23
+pytgcalls==3.0.0.dev24
 motor==3.4.0
 ffmpeg-python
 aiohttp
