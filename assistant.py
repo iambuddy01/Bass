@@ -1,5 +1,6 @@
 from pyrogram import Client
-from pytgcalls import PyTgCalls, idle, AudioPiped
+from py_tgcalls import PyTgCalls, idle
+from py_tgcalls.types.input_stream import AudioPiped
 import asyncio
 import os
 import ffmpeg
