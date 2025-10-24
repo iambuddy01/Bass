@@ -3,11 +3,6 @@
   <img src="https://0x0.st/K2QT.jpg" alt="BASS BOT 🔊" width="900">
 </p>
 
-<!-- ⚡ Animated Neon Header -->
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&size=40&duration=3000&pause=1000&color=AA00FF&center=true&vCenter=true&width=900&lines=BASS+BOT+🔊;FEEL+THE+BEAT;PLAY+LOUD+STAY+BASSY!" alt="BASS BOT 🔊">
-</p>
-
 <h1 align="center">🔥 BASS BOT 🔊</h1>
 
 <p align="center">
