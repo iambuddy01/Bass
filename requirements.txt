@@ -1,6 +1,6 @@
 pyrogram==2.0.106
 TgCrypto
-pytgcalls @ git+https://github.com/pytgcalls/pytgcalls.git@master
+py-tgcalls @ git+https://github.com/pytgcalls/pytgcalls.git@master
 motor==3.4.0
 ffmpeg-python
 aiohttp
