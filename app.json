@@ -1,0 +1,38 @@
+{
+  "name": "BassBot",
+  "description": "Telegram bot to play audio/voice in VC with extreme bass.",
+  "repository": "https://github.com/YOUR_USERNAME/YOUR_REPO",
+  "stack": "heroku-24",
+  "env": {
+    "API_ID": {
+      "description": "Your Telegram API ID",
+      "value": ""
+    },
+    "API_HASH": {
+      "description": "Your Telegram API Hash",
+      "value": ""
+    },
+    "BOT_TOKEN": {
+      "description": "Telegram Bot Token",
+      "value": ""
+    },
+    "SESSION_STRING": {
+      "description": "Assistant Pyrogram session string",
+      "value": ""
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  }
+}
