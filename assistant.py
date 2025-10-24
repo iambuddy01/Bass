@@ -1,12 +1,13 @@
 from pyrogram import Client
-from py_tgcalls import PyTgCalls, idle
-from py_tgcalls.types.input_stream import AudioPiped
+from py_tgcalls import PyTgCalls, idle, AudioPiped
 import asyncio
 import os
 import ffmpeg
 from config import API_ID, API_HASH, SESSION_STRING
 
-# Assistant client
+# ==============================
+# Assistant Client
+# ==============================
 assistant = Client(
     name="assistant",
     api_id=API_ID,
@@ -16,7 +17,8 @@ assistant = Client(
 
 pytgcalls = PyTgCalls(assistant)
 
-active_sessions = {}  # chat_id -> file_path
+# chat_id -> file_path
+active_sessions = {}
 
 # ==============================
 # 🔊 Bass Boost Function
@@ -29,7 +31,7 @@ def apply_bass_boost(input_file: str) -> str:
             .input(input_file)
             .output(
                 boosted_file,
-                af='bass=g=25:f=80,volume=10dB',
+                af='bass=g=25:f=80,volume=10dB',  # extreme bass + loud
                 format='wav',
                 acodec='pcm_s16le',
                 ac=2,
@@ -68,7 +70,7 @@ async def restart_stream(_, update):
     chat_id = update.chat_id
     if chat_id in active_sessions:
         file = active_sessions[chat_id]
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         await play_bass(file, chat_id)
 
 async def stop_bass(chat_id: int):
@@ -83,7 +85,9 @@ async def stop_bass(chat_id: int):
         except:
             pass
 
-# Start assistant
+# ==============================
+# Run Assistant
+# ==============================
 async def run_assistant():
     await assistant.start()
     await pytgcalls.start()
