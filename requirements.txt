@@ -1,7 +1,7 @@
 pyrogram==2.0.106
 TgCrypto
-pytgcalls==2.1.0
+pytgcalls @ git+https://github.com/pytgcalls/pytgcalls.git@master
 motor==3.4.0
-ffmpeg-python==0.2.0
-aiohttp==3.13.1
-heroku3==5.2.1
+ffmpeg-python
+aiohttp
+heroku3
