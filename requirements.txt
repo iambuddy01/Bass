@@ -2,4 +2,4 @@ pyrogram==2.0.106
 tgcrypto
 pydub
 ffmpeg-python
-git+https://github.com/pytgcalls/pytgcalls.git@f7c86b1397bfad93bc36d146a70360695d8d221c#egg=py-tgcalls
+git+https://github.com/pytgcalls/pytgcalls.git#egg=pytgcalls
