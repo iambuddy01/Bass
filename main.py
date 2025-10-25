@@ -1,12 +1,17 @@
 import asyncio
 import os
+import warnings
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pydub import AudioSegment
 from pytgcalls import PyTgCalls, idle
 from pytgcalls.types import AudioPiped
-
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
+
+# ==============================
+# 🚫 Suppress known warnings
+# ==============================
+warnings.filterwarnings("ignore", message="Task was destroyed but it is pending")
 
 # ==============================
 # 🔹 Bot & Assistant Client
@@ -27,15 +32,15 @@ assistant = Client(
 
 pytgcalls = PyTgCalls(assistant)
 active_sessions = {}  # chat_id -> file_path
+user_audio_files = {}  # user_id -> audio_path
 
 # ==============================
 # 🔊 Bass Boost Function
 # ==============================
 def apply_bass_boost(audio_path: str) -> str:
     audio = AudioSegment.from_file(audio_path)
-    # Extreme bass: low pass + high pass + huge gain
     boosted = audio.low_pass_filter(250).high_pass_filter(100).apply_gain(40)
-    boosted_path = "boosted_audio.mp3"  # always overwrite
+    boosted_path = "boosted_audio.mp3"
     boosted.export(boosted_path, format="mp3")
     return boosted_path
 
@@ -48,7 +53,7 @@ async def play_bass(file_path: str, chat_id: int):
 
     try:
         await assistant.join_chat(chat_id)
-    except:
+    except Exception:
         pass
 
     try:
@@ -66,12 +71,12 @@ async def loop_audio(_, update):
 async def stop_bass(chat_id: int):
     try:
         await pytgcalls.leave_group_call(chat_id)
-    except:
+    except Exception:
         pass
     if chat_id in active_sessions:
         try:
             os.remove(active_sessions.pop(chat_id))
-        except:
+        except Exception:
             pass
 
 # ==============================
@@ -81,10 +86,8 @@ async def stop_bass(chat_id: int):
 async def start_cmd(client, message: Message):
     await message.reply_text(
         "🎵 **Bass Bot is alive!**\n"
-        "Use /bass to send an audio file or voice message to play with extreme bass."
+        "Use /bass by replying to an audio or voice message to play with extreme bass!"
     )
-
-user_audio_files = {}  # user_id -> audio_path
 
 @bot.on_message(filters.command("bass") & filters.reply)
 async def bass_cmd(client, message: Message):
@@ -113,18 +116,31 @@ async def receive_group_id(client, message: Message):
 
 @bot.on_message(filters.command("bstop"))
 async def stop_cmd(client, message: Message):
-    await stop_bass(int(message.text.split(" ")[1]) if len(message.text.split()) > 1 else 0)
-    await message.reply_text("⏹️ Playback stopped.")
+    try:
+        chat_id = int(message.text.split(" ")[1]) if len(message.text.split()) > 1 else 0
+        await stop_bass(chat_id)
+        await message.reply_text("⏹️ Playback stopped.")
+    except Exception as e:
+        await message.reply_text(f"🚫 Error stopping playback: {e}")
 
 # ==============================
-# 🔹 Run Assistant + Bot
+# 🧠 Safe Run Function
 # ==============================
 async def run():
-    await bot.start()
-    await assistant.start()
-    await pytgcalls.start()
-    print("[BassBot] Running with Extreme Bass 🔊")
-    await idle()
+    try:
+        await bot.start()
+        await assistant.start()
+        await pytgcalls.start()
+        print("[BassBot] Running with Extreme Bass 🔊")
+        await idle()
+    except Exception as e:
+        print(f"[BassBot Error] {e}")
+    finally:
+        print("[BassBot] Stopping gracefully...")
+        await pytgcalls.stop()
+        await bot.stop()
+        await assistant.stop()
+        print("[BassBot] Clean shutdown complete ✅")
 
 if __name__ == "__main__":
     asyncio.run(run())
