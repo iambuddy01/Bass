@@ -2,4 +2,5 @@ pyrogram==2.0.106
 tgcrypto
 pydub
 ffmpeg-python
-py-tgcalls=0.9.7
+py-tgcalls==0.9.7
+
