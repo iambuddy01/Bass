@@ -139,53 +139,7 @@ async def run():
         print(f"[BassBot Error] {e}")
     finally:
         print("[BassBot] Stopping gracefully...")
-        try:
-            await pytgcalls.terminate()  # FIXED: stop -> terminate
-        except Exception:
-            pass
-        await bot.stop()
-        await assistant.stop()
-        print("[BassBot] Clean shutdown complete ✅")
-
-if __name__ == "__main__":
-    asyncio.run(run())
-@bot.on_message(filters.text)
-async def receive_group_id(client, message: Message):
-    user_id = message.from_user.id
-    if user_id in user_audio_files:
-        try:
-            chat_id = int(message.text.strip())
-            file_path = user_audio_files[user_id]
-            await play_bass(file_path, chat_id)
-            await message.reply_text(f"🎧 Playing audio with extreme bass in VC: `{chat_id}`")
-            del user_audio_files[user_id]
-        except Exception as e:
-            await message.reply_text(f"🚫 Failed: {e}")
-
-@bot.on_message(filters.command("bstop"))
-async def stop_cmd(client, message: Message):
-    try:
-        chat_id = int(message.text.split(" ")[1]) if len(message.text.split()) > 1 else 0
-        await stop_bass(chat_id)
-        await message.reply_text("⏹️ Playback stopped.")
-    except Exception as e:
-        await message.reply_text(f"🚫 Error stopping playback: {e}")
-
-# ==============================
-# 🧠 Safe Run Function
-# ==============================
-async def run():
-    try:
-        await bot.start()
-        await assistant.start()
-        await pytgcalls.start()
-        print("[BassBot] Running with Extreme Bass 🔊")
-        await idle()
-    except Exception as e:
-        print(f"[BassBot Error] {e}")
-    finally:
-        print("[BassBot] Stopping gracefully...")
-        # PyTgCalls v2 no longer has stop(), just leave any active calls
+        # Leave all active calls
         for chat_id in list(active_sessions.keys()):
             await stop_bass(chat_id)
         await bot.stop()
