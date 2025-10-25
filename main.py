@@ -3,7 +3,7 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pydub import AudioSegment
-from py_tgcalls import PyTgCalls, idle, AudioPiped
+from py-tgcalls import PyTgCalls, idle, AudioPiped
 
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
 
