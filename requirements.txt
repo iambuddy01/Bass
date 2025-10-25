@@ -1,6 +1,11 @@
-pyrogram==2.0.106
-tgcrypto
-pydub
-ffmpeg-python
-py-tgcalls==0.9.7
-
+pyrogram==2.0.45
+pytgcalls==0.4.2
+aiofiles==23.2.1
+aiohttp==3.8.5
+asyncio==3.4.3
+pydub==0.25.1
+python-dotenv==1.0.1
+dnspython==2.6.1
+ffmpeg-python==0.2.1
+opencv-python-headless==4.10.0.84
+psutil==5.9.5
