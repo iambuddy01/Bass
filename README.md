@@ -74,10 +74,10 @@
 
 👑 Credits & Support
 
-💬 Support: @pyaarkiyatha
+[💬 Support](https://t.me/pyaarkiyatha) 
 
-🧠 Updates: @fine_n_ok
+[🧠 Updates](https://t.me/fine_n_ok) 
 
-🧑‍💻 Developer: @ITsExclusive
+[🧑‍💻 Developer](https://t.meITsExclusive)
 
 <p align="center"> <b>Made with 💜 by ITsExclusive69</b><br> <i>Feel the bass. Disturb the peace.</i> </p>
