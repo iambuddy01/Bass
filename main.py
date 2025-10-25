@@ -5,11 +5,11 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from pydub import AudioSegment
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types import AudioPiped
+from pytgcalls.types.input_stream import InputAudioStream
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
 
 # ==============================
-# 🚫 Suppress known warnings
+# 🚫 Suppress warnings
 # ==============================
 warnings.filterwarnings("ignore", message="Task was destroyed but it is pending")
 
@@ -40,7 +40,7 @@ user_audio_files = {}  # user_id -> audio_path
 def apply_bass_boost(audio_path: str) -> str:
     audio = AudioSegment.from_file(audio_path)
     boosted = audio.low_pass_filter(250).high_pass_filter(100).apply_gain(40)
-    boosted_path = "boosted_audio.mp3"
+    boosted_path = f"boosted_{os.path.basename(audio_path)}"
     boosted.export(boosted_path, format="mp3")
     return boosted_path
 
@@ -57,7 +57,7 @@ async def play_bass(file_path: str, chat_id: int):
         pass
 
     try:
-        await pytgcalls.join_group_call(chat_id, AudioPiped(boosted_file))
+        await pytgcalls.join_group_call(chat_id, InputAudioStream(boosted_file))
     except Exception as e:
         print(f"[BassError] {e}")
 
@@ -137,7 +137,9 @@ async def run():
         print(f"[BassBot Error] {e}")
     finally:
         print("[BassBot] Stopping gracefully...")
-        await pytgcalls.stop()
+        # PyTgCalls v2 no longer has stop(), just leave any active calls
+        for chat_id in list(active_sessions.keys()):
+            await stop_bass(chat_id)
         await bot.stop()
         await assistant.stop()
         print("[BassBot] Clean shutdown complete ✅")
